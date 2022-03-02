@@ -1,0 +1,12 @@
+= RxJS
+// Doc Writer <doc@example.com>
+:reproducible: :listing-caption: Listing
+:source-highlighter: rouge
+:toc:
+// Uncomment next line to add a title page (or set doctype to book)
+//:title-page:
+// Uncomment next line to set page size (default is A4)
+//:pdf-page-size: Letter
+
+== Por quê RxJS?
+O RxJS possui características de callback, promises e mais outras, como de eventos de input, Web Workers, etc. Podemos pegar todos eles e transformar em um único tipo de objeto, deixando o nosso fluxo de trabalho mais homogêneo, além de nos beneficiarmos das funcionalidades de Programação Funcional e Reativa.
