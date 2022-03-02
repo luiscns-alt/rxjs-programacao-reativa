@@ -1,0 +1,113 @@
+= Iniciando com o RxJS
+// Doc Writer <doc@example.com>
+:reproducible: :listing-caption: Listing
+:source-highlighter: rouge
+:toc:
+// Uncomment next line to add a title page (or set doctype to book)
+//:title-page:
+// Uncomment next line to set page size (default is A4)
+//:pdf-page-size: Letter
+
+// An example of a basic http://asciidoc.org[AsciiDoc] document prepared by {author}.
+
+== Introduction
+o RxJS utiliza o padrão Observable
+
+[square]
+* *Observables (observáveis)* - pense neles como variáveis que estão sendo vigiadas. Quando elas são alteradas, os observadores delas entram em ação;
+* *Observers (observadores)* - pense neles como funções que são disparadas sempre que um Observable é alterado.
+
+[.text-justify]
+Para receber notificações da alteração de um Observable, os Observers devem se inscrever com o método “subscribe()” do objeto Observable.
+
+== Insira a biblioteca do RxJS:
+```js
+<script src="//cdnjs.cloudflare.com/ajax/libs/rxjs/5.0.1/Rx.js" ></script>
+```
+[source,html]
+----
+<script src="//cdnjs.cloudflare.com/ajax/libs/rxjs/5.0.1/Rx.js" ></script>
+----
+
+== Criando Observables
+[source, js]
+----
+var observable = Rx.Observable.create(observer => {
+   observer.next(5);
+})
+----
+[.text-justify]
+Criamos um Observable a partir da função “create()” do objeto Observable presente dentro do objeto Rx. O Observable criado nós guardamos em uma variável chamada “observable”.
+[.text-justify]
+Na função “create()” nós devemos passar uma função que será executada sempre que algum Observer se inscrever nesse nosso Observable. Nós recebemos um objeto Observer e executamos a função “next()”. A função “next()” indica qual será o próximo valor a ser recebido pelo Observer, ou seja, quando alguém se inscrever no nosso objeto, irá receber o valor “5”.
+
+Vamos acrescentar então o código da inscrição
+
+[source, js]
+----
+observable.subscribe(
+  value => console.log(`My Value is ${value}`)
+)
+----
+
+[.text-justify]
+Acessamos o nosso Observable e executamos a função “subscribe()” para nos inscrevermos nele. A função “subscribe()” recebe uma função que é executada sempre que o Observer executar a função “next()”.
+
+Podemos passar três funcões:
+[square]
+* *next*: função executada quando a função next() for executada;
+* *error*: função executada se ocorrer um erro;
+* *completed*: função executada quando a operação for finalizada.
+
+[.text-justify]
+Assim nós podemos gerenciar quando um Observer deve receber um valor, saber quando houve um erro e quando a operação foi finalizada. Para isso, basta alterarmos um pouco nosso código:
+[source,js]
+----
+var observable = Rx.Observable.create(observer => {
+   observer.next(5);
+   observer.error(‘error cod 131’);
+})
+
+var subscription = observable.subscribe(
+   value => console.log(`My Value is ${value}`),
+   err => console.log(`Error message: ${err}`),
+   () => console.log(‘Completed!’)
+)
+----
+
+[.text-justify]
+Assim nós receberemos uma mensagem de erro.
+Já a última função, a qual fizemos imprimir “Completed!” será executada se não houver erros.
+[source,js]
+----
+var observable = Rx.Observable.create(observer => {
+   observer.next(5);
+   observer.complete();
+})
+----
+
+Dessa maneira nós teremos a função Completed executada.
+
+Até aqui não vimos nada de interessante. O que importa mesmo é a possibilidade do Observer receber valores de forma assíncrona e lidar com eles conforme o Observable tenha seu valor alterado. Vamos então alterar nosso código mais uma vez:
+
+[source,js]
+----
+var observable = Rx.Observable.create(observer =>{
+  var i = 0;
+  setInterval(()=>{
+    observer.next(i++);
+  }, 1000);
+})
+----
+
+Agora temos um Interval executando a função “next()” a cada 1 segundo. A cada execução, a variável “i” aumenta de valor. Isso fará com que o Observer receba um valor diferente a cada segundo.
+
+Há duas maneiras de parar essa repetição, cada uma feita para uma necessidade diferente.
+
+[square]
+* Caso o processamento feito na declaração do Observable já tenha sido finalizada, poderíamos executar a função *“observer.complete()”*. Isso faz com que a função *“next()”* não tenha mais efeito, pois já indicou ao Observer que as operações já acabaram;
+* Podemos executar a função *“subscription.unsubscribe()”*. Isso fará com que a gente se desinscreva do Observable, fazendo com que a gente não receba mais atualizações dele. Lembre-se que apenas nos desisnscrevemos, portanto, neste caso a função “Completed” não será executada.
+
+Independente se executamos “complete()” ou “unsubscribe()”, se houver algo rodando dentro da função passada para “create()”, ela permanecerá sendo executada. No nosso exemplo, criamos um Interval. Ele ainda estará sendo executado.
+
+Outro detalhe é que cada inscrição que fizermos irá criar um novo contexto. Isso significa que se criarmos uma nova inscrição, o número impresso será diferente do primeiro.

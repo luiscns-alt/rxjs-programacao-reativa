@@ -4,7 +4,7 @@
 
 ##### Uma ideia básica das funções em Programação Funcional é que todas as funções devem ser “puras”. Isso significa que toda função deve receber pelo menos um parâmetro e sempre retornar um valor.
 
-- Programação Imperativa
+---
 
 ```js
 var list = [1, 2, 3, 4, 5, 6];
