@@ -1,0 +1,114 @@
+= Subjects
+Doc Writer <doc@example.com>
+:reproducible: :listing-caption: Listing
+:source-highlighter: rouge
+:toc:
+// Uncomment next line to add a title page (or set doctype to book)
+//:title-page:
+// Uncomment next line to set page size (default is A4)
+//:pdf-page-size: Letter
+
+// An example of a basic http://asciidoc.org[AsciiDoc] document prepared by {author}.
+
+== Subjects
+
+=== AsyncSubject
+Bom para quando estamos trabalhando com eventos assíncronos e os valores iniciais não importam, pois ele só irá enviar o último valor retornado antes da função “complete()” ser executada.
+[source,js]
+----
+var subjectAsyncSubject = new Rx.AsyncSubject();
+var subscriptionAsyncSubject = subjectAsyncSubject.subscribe(
+  (value) => console.log(`My Value is ${value}`),
+  (err) => console.log(`Error message: ${err}`),
+  () => console.log("Completed!")
+);
+
+var counter = 5,
+  intervalAsyncSubject = setInterval(() => {
+    subjectAsyncSubject.next(counter--);
+    if (!counter) {
+      clearInterval(intervalAsyncSubject);
+      subjectAsyncSubject.complete();
+    }
+  }, 1000);
+----
+Criamos um simples Subject, mas dessa vez com o objeto AsyncSubject. Criamos um Interval que irá disparar 5 valores a cada 1 segundo.
+
+Por estarmos com um AsyncSubject, apenas o último valor enviado antes da função “completed()” ter sido executada é que será exibido.
+
+Caso a gente coloque um Subject comum, cada um dos valores enviados serão impressos.
+
+=== BehaviorSubject
+A principal diferença é que podemos passar um valor inicial para o BehaviorSubject. Este valor será utilizado quando alguém se inscrever nele e nenhum valor tiver sido enviado ainda.
+
+Outra diferença é que se um Subject parar de enviar valores, um novo inscrito não receberá nada. Se um BehaviorSubject parar de enviar valores, um novo inscrito receberá o último valor enviado, ou o valor inicial se nenhum tiver sido passado.
+[source,js]
+----
+var subjectBehaviorSubject = new Rx.BehaviorSubject(83);
+var subscriptionBehaviorSubject = subjectBehaviorSubject.subscribe(
+  (value) => console.log(`My Value is ${value}`),
+  (err) => console.log(`Error message: ${err}`),
+  () => console.log("Completed!")
+);
+
+var counterBehaviorSubject = 5,
+  intervalBehaviorSubject = setInterval(() => {
+    subjectBehaviorSubject.next(counterBehaviorSubject--);
+    if (!counterBehaviorSubject) {
+      clearInterval(intervalBehaviorSubject);
+      subjectBehaviorSubject.complete();
+    }
+  }, 1000);
+----
+Se quisermos pegar o valor final do BehaviorSubject, não precisamos criar uma nova inscrição. Basta utilizar a função “getValue()” e o último valor será retornado (ou valor inicial caso nenhum tenha sido enviado).
+
+=== ReplaySubject
+O ReplaySubject armazena os últimos valores enviados. Assim, se houver um novo inscrito, ele receberá todos os últimos valores. Nós podemos escolher a quantidade de itens armazenados.
+[source,js]
+----
+var subjectReplaySubject = new Rx.ReplaySubject(2);
+var subscriptionReplaySubject = subjectReplaySubject.subscribe(
+  (value) => console.log(`My Value is ${value}`),
+  (err) => console.log(`Error message: ${err}`),
+  () => console.log("Completed!")
+);
+
+var counterReplaySubject = 5,
+  intervalReplaySubject = setInterval(() => {
+    subjectReplaySubject.next(counterReplaySubject--);
+    if (!counterReplaySubject) {
+      clearInterval(intervalReplaySubject);
+      subjectReplaySubject.complete();
+    }
+  }, 1000);
+----
+No exemplo acima nós indicamos para o ReplaySubject que queremos que ele armazene os últimos 2 valores. Durante seu ciclo de vida serão enviados 5 valores.
+
+Como criamos um inscrito antes dos valores começarem a ser enviados, esse inscrito irá receber todos os valores, mas o ReplaySubject irá armazenar os últimos 2.
+
+Se criarmos um novo inscrito, ele irá receber estes últimos 2 valores que o ReplaySubject armazenou em seu buffer.
+
+Se não passarmos nenhuma quantidade de elementos a serem armazenados, todos os valores enviados ficarão armazenados na memória.
+
+Como segundo parâmetro, podemos passar por quanto tempo cada elemento ficará disponível.
+[source,js]
+----
+var subject = new Rx.ReplaySubject(2, 10000);
+var subscription = subject.subscribe(
+  (value) => console.log(`My Value is ${value}`),
+  (err) => console.log(`Error message: ${err}`),
+  () => console.log("Completed!")
+);
+
+var counter = 5,
+  interval = setInterval(() => {
+    subject.next(counter--);
+    if (!counter) {
+      clearInterval(interval);
+      subject.complete();
+    }
+  }, 1000);
+----
+No exemplo acima teremos um resultado parecido com o exemplo de antes: os dois últimos valores serão armazenados e enviados a qualquer futuro inscrito.
+
+A diferença é que indicamos que o tempo de vida de cada um desses valores terá uma validade de 10 segundos, ou seja, após 10 segundos de existência, o valor é apagado.
