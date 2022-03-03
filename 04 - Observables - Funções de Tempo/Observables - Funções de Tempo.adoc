@@ -1,0 +1,89 @@
+= Observables - Funções de Tempo
+Doc Writer <doc@example.com>
+:reproducible: :listing-caption: Listing
+:source-highlighter: rouge
+:toc:
+// Uncomment next line to add a title page (or set doctype to book)
+//:title-page:
+// Uncomment next line to set page size (default is A4)
+//:pdf-page-size: Letter
+
+// An example of a basic http://asciidoc.org[AsciiDoc] document prepared by {author}.
+
+== delay
+Podemos definir um atraso para a operação ser realizada.
+[source,js]
+----
+var source = Rx.Observable.from([1,2,3,4,5])
+    .delay(5000);
+
+var subscription = source.subscribe(
+    value => console.log(value)
+)
+----
+Fizemos com que os valores sejam enviados apenas 5 segundos após a inscrição ter sido feita.
+
+== interval
+
+Fica enviando um valor a cada intervalo de tempo.
+[source,js]
+----
+var sourceInterval = Rx.Observable.interval(1000);
+
+var subscriptionInterval = source.subscribe((value) => console.log(value));
+----
+Fizemos um valor ser impresso a cada 1 segundo. Para limitar quantos queremos receber, podemos utilizar a função “take()”.
+
+=== timer
+Pense nele como uma mistura do delay e do interval.
+[source,js]
+----
+var sourceTimer = Rx.Observable.timer(5000, 1000).take(5);
+
+var subscriptionTimer = source.subscribe((value) => console.log(value));
+----
+No código acima, primeiro haverá um atraso de 5 segundos para os valores serem enviados, e então, cada um será enviado a cada 1 segundo.
+
+== debounce
+Apenas envia um valor depois de um certo tempo. Para ver esse função funcionando vamos reutilizar aquele exemplo onde a <div> exibe o que estamos escrevendo no <input>:
+[source,html]
+----
+<input type="text" id="myInput" />
+    <div id="myDiv"></div>
+----
+E teremos o seguinte script:
+[source,js]
+----
+var myInput = document.querySelector("#myInput"),
+  myDiv = document.querySelector("#myDiv"),
+  inputs = Rx.Observable.fromEvent(myInput, "keyup");
+
+inputs.subscribe((event) => {
+  myDiv.innerHTML = event.target.value;
+});
+----
+Cada vez que soltamos uma tecla, um evento é disparado. Toda hora estamos acessando o DOM, o que é custoso. Imagine se esse evento fizesse requisições ao servidor, enviando o que o usuário escreveu para poder fornecer um Auto Complete.
+
+Poderíamos criar um Timeout para executar a função apenas depois de um certo tempo, e caso o usuário ainda esteja digitando, bastaria cancelarmos a execução do evento. Teríamos o seguinte código:
+[source,js]
+----
+var timer = null;
+inputs.subscribe((event) => {
+  clearTimeout(timer);
+  timer = setTimeout(() => {
+    myDiv.innerHTML = event.target.value;
+  }, 1000);
+});
+----
+Criamos uma variável chamada “timer”. Toda vez que quisermos inserir algo na Div, executaremos dentro de um Timeout, que só será executado depois de 1 segundo. Caso o usuário continue digitando, o “clearTimeout()” irá cancelar o nosso Timeout, iniciando um novo e cancelando o anterior. Então apenas a última ação será executada.
+
+Ao invés de fazer isso na mão podemos nos aproveitar da função “debounce()”:
+[source,js]
+----
+inputs
+  .debounce(() => Rx.Observable.interval(1000))
+  .subscribe((event) => {
+    myDiv.innerHTML = event.target.value;
+  });
+----
+A função “debounce()” recebe uma função que deve retornar um intervalo. Para isso, utilizamos o nosso conhecido “interval()” do objeto Observable.
