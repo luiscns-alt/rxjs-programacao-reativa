@@ -1,0 +1,98 @@
+= Generators
+Doc Writer <doc@example.com>
+:reproducible: :listing-caption: Listing
+:source-highlighter: rouge
+:toc:
+// Uncomment next line to add a title page (or set doctype to book)
+//:title-page:
+// Uncomment next line to set page size (default is A4)
+//:pdf-page-size: Letter
+
+// An example of a basic http://asciidoc.org[AsciiDoc] document prepared by {author}.
+
+== Generators
+Os Generators são um tipo de função que foi lançada no ES6. A diferença com funções normais é que os Generators podem ser pausados em qualquer momento de sua execução, e depois podemos chamar para que eles terminem seu trabalho. Ou seja, é mais uma funcionalidade que nos possibilita trabalhar de forma assíncrona.
+
+Vamos ver um simples exemplo de como um Generator funciona:
+
+[source,js]
+----
+function* myCounter() {
+  var i = 0;
+  while (true) {
+    yield i++;
+  }
+}
+
+var counter = myCounter();
+----
+
+Se você nunca mexeu com Generators, duas coisas para se notar que diferem de uma função comum:
+
+a declaração “function*”: note que há um “*”, indicando que aquela função é um Generator
+o comando “yield” dentro do corpo da função
+Dentro da função nós criamos um contador que inicia em 0, e então criamos um looping infinito. Não há perigo aqui, pois quando o comando “yield” é executado, a função para de ser executada. Passamos o valor de “i” para “yield”. Pense nele como um “return” nesse ponto.
+
+Em seguida nós executamos o nosso Generetor e guardamos o retorno em uma variável chamada “counter”.
+
+Para acessarmos os valores retornados pelo nosso Generator, basta chamar a função “next()”, assim:
+
+[source,js]
+----
+counter.next()
+----
+
+Isso retornará um objeto com o valor retornado pelo Generator e um campo que indica se o Generator foi finalizado ou não.
+
+Neste exemplo, fizemos um Generator que não terá fim, já que ele está com um looping infinito.
+
+Podemos ter vários comandos “yield” dentro de um Generator, como:
+
+[source,js]
+----
+function* myGenerator() {
+  yield 5;
+  console.log("we’re back!");
+  yield 10;
+}
+----
+Se executarmos, a função irá parar no primeiro “yield”. Ao chamar o “next()” pela segunda vez, a mensagem “we’re back!” será impressa e a função irá terminar no segundo yield;
+
+Além disso, podemos também passar uma lista de valores para o yield e mandar ele retornar apenas um valor por vez, ao invés de retornar o array de uma vez só:
+
+[source,js]
+----
+function* myGenerator() {
+  yield* [1, 2, 3, 4, 5];
+}
+
+----
+
+=== Trabalhando com Generators e Observables
+
+[source,js]
+----
+function* myGenerator() {
+  yield* [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+}
+
+Rx.Observable.from(myGenerator()).subscribe((x) => console.log(x));
+----
+
+Passamos o nosso Generator para a função “from()” de Observable. Já aproveitamos e nos inscrevemos para imprimir os valores enviados.
+
+Atenção aqui: se inscrever direto em um Generator, como no exemplo acima, fará com que o Generator seja executado até o final. Aqui não houve problema porque temos uma lista finita de números.
+
+Mas se estivéssemos com aquele nosso Generator com looping infinito teríamos um problema, pois ele ficaria rodando sem fim. Para isso, podemos utilizar a função “take()”
+
+[source,js]
+----
+function* myGenerator() {
+  yield* [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+}
+
+Rx.Observable.from(myGenerator())
+  .take(5)
+  .subscribe((x) => console.log(x));
+----
+A função “take()” faz com que a gente apenas receba um determinado número de valores. Aqui no exemplo passamos 5. Então não importa quantos valores serão enviados, ficaremos limitados a 5. Então se estivéssemos em nosso Generator sem fim, não haveria problemas, pois impomos um limite de chamadas.
