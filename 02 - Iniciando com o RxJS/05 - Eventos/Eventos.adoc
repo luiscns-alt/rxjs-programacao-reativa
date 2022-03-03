@@ -1,0 +1,37 @@
+= Eventos
+Doc Writer <doc@example.com>
+:reproducible: :listing-caption: Listing
+:source-highlighter: rouge
+:toc:
+// Uncomment next line to add a title page (or set doctype to book)
+//:title-page:
+// Uncomment next line to set page size (default is A4)
+//:pdf-page-size: Letter
+
+An example of a basic http://asciidoc.org[AsciiDoc] document prepared by {author}.
+
+== Introduction
+Podemos criar Observables a partir de eventos.
+
+Vamos criar o seguinte HTML:
+[source,html]
+----
+<input type="text" id="myInput" />
+<div id="myDiv"></div>
+----
+
+E teremos o seguinte script:
+[source,js]
+----
+var myInput = document.querySelector('#myInput'),
+    myDiv = document.querySelector('#myDiv'),
+    inputs = Rx.Observable.fromEvent(myInput, 'keyup');
+
+inputs.subscribe(event => {
+    myDiv.innerHTML = event.target.value;
+})
+----
+
+Executamos a função “fromEvent()”, e então passamos o elemento alvo do evento, nosso <input>, e o nome do evento que queremos observar, “keyup”.
+
+Quando nos inscrevemos, recebemos o objeto “Event”, e então conseguimos acessar o <input>, pegar seu valor e jogar na <div>.
