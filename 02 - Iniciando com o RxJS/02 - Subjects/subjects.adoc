@@ -1,0 +1,77 @@
+= Subjects
+// Doc Writer <doc@example.com>
+:reproducible: :listing-caption: Listing
+:source-highlighter: rouge
+:toc:
+// Uncomment next line to add a title page (or set doctype to book)
+//:title-page:
+// Uncomment next line to set page size (default is A4)
+//:pdf-page-size: Letter
+
+// An example of a basic http://asciidoc.org[AsciiDoc] document prepared by {author}.
+
+== Subjects
+A classe Subject é parecido tanto com Observable quanto com Observer. Isso porque nós podemos usá-los para se inscrever em outros Observables e também podemos nos inscrever neles.
+
+Por causa disso, eles podem ser usados, por exemplo, para agir como um proxy para um grupo de inscrições e fonte de dados.
+
+=== Se inscrevendo em Subjects
+
+[source,js]
+----
+var subject = new Rx.Subject();
+var subscription = subject.subscribe(
+  (value) => console.log(`My Value is ${value}`),
+  (err) => console.log(`Error message: ${err}`),
+  () => console.log("Completed!")
+);
+
+subject.next(55);
+subject.next(34);
+subject.complete();
+----
+
+Neste exemplo nós começamos declarando um novo Subject e guardando ele na variável “subject”. Depois nós nos inscrevemos nele, e passamos as funções relacionadas à atualização de valor, erro e finalização, assim como fizemos com o Observable.
+
+A diferença aqui é que nós podemos pegar o Subject e alterar o valor dele daqui de fora, diferente do Observable que tinha uma função interna que indicava os valores.
+
+=== Subjects se inscrevendo em Observables
+
+s Subjects além de poderem receber inscrições também podem se inscrever.
+
+[source,js]
+----
+var observable = Rx.Observable.create((observer) => {
+  var i = 0;
+  var interval = setInterval(() => {
+    i++;
+    observer.next(parseInt(Math.random() * 10));
+    if (i > 5) {
+      clearInterval(interval);
+      observer.complete();
+    }
+  }, 1000);
+});
+
+var subject = new Rx.Subject();
+
+var subSource = observable.subscribe(subject);
+
+var subscription = subject.subscribe(
+  (value) => console.log(`1 - My Value is ${value}`),
+  (err) => console.log(`Error message: ${err}`),
+  () => console.log("1 - Completed!")
+);
+
+var subscription2 = subject.subscribe(
+  (value) => console.log(`2 - My Value is ${value}`),
+  (err) => console.log(`Error message: ${err}`),
+  () => console.log("2 - Completed!")
+);
+----
+
+Criamos um Observable bem parecido com o que vimos anteriormente. A diferença aqui é que colocamos um limite de vezes que o Interval será executado, e o valor passado para a função “next()” é um número aleatório.
+
+Em seguida criamos um Subject. Até agora nada de novo. O diferente vem agora: nos inscrevemos no Observable, mas ao invés de passar funções, nós passamos o Subject. Isso fará com que o Subject reaja às atualizações do Observable.
+
+Mesmo reagindo ao Observable, o nosso Subject ainda pode reagir ao seu próprio método “next()”. Claro, desde que nenhum “complete()” tenha sido executado.
