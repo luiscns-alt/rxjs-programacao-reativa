@@ -1,0 +1,44 @@
+= Promises
+Doc Writer <doc@example.com>
+:reproducible: :listing-caption: Listing
+:source-highlighter: rouge
+:toc:
+// Uncomment next line to add a title page (or set doctype to book)
+//:title-page:
+// Uncomment next line to set page size (default is A4)
+//:pdf-page-size: Letter
+
+An example of a basic http://asciidoc.org[AsciiDoc] document prepared by {author}.
+
+== Promises
+[source,js]
+----
+var myPromise = new Promise((resolve, reject)=>{
+    setTimeout(()=>{
+        resolve(500);
+    }, 2000);
+})
+
+myPromise.then(value => console.log(`My value is ${value}`));
+----
+Criamos uma nova Promise com “new Promise()”, e a guardamos na variável “myPromise”. Quando uma Promise é criada ela deve receber uma função. Essa função recebe dois parâmetros: uma função a ser executada quando o processamento acabar (“resolve()”) e uma função a ser executada caso ocorra um erro (“reject()”).
+
+“myPromise” receberá uma Promise, que possui o método “then()”. Esta função é executada assim que a função “resolve()” for executada, e ele recebe o valor enviado no comando anterior, neste caso, o valor passado dentro de “resolve()”.
+
+Podemos transformar Promises em Observables. Uma das maiores vantagens de se trabalhar com Observables é que nós podemos cancelá-los, ao contrário das Promises.
+
+[source,js]
+----
+var myPromise = new Promise((resolve, reject)=>{
+  setTimeout(()=>{
+    resolve(500);
+  }, 2000);
+})
+
+var source = Rx.Observable.fromPromise(myPromise);
+var subscription = source.subscribe(
+    value => console.log(`My Value is ${value}`)
+)
+----
+
+Veja que simplesmente criamos um Observable utilizando a função “fromPromise()”. Depois disso trabalhamos com um Observable do jeito que conhecemos, ou seja, transformando tudo que o Observables nos trás, além das funcionalidades do RxJS, trabalhar com uma mesma estrutura.
