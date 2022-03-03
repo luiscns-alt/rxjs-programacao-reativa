@@ -1,0 +1,22 @@
+= Array
+Doc Writer <doc@example.com>
+:reproducible: :listing-caption: Listing
+:source-highlighter: rouge
+:toc:
+// Uncomment next line to add a title page (or set doctype to book)
+//:title-page:
+// Uncomment next line to set page size (default is A4)
+//:pdf-page-size: Letter
+
+// An example of a basic http://asciidoc.org[AsciiDoc] document prepared by {author}.
+
+== Array
+[source,js]
+----
+var numbers = [1,8,15,37];
+var source = Rx.Observable.from(numbers);
+
+var subscription = source.subscribe(
+    value => console.log(`My Value is ${value}`)
+)
+----

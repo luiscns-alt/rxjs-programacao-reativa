@@ -1,0 +1,31 @@
+= Document Title
+Doc Writer <doc@example.com>
+:reproducible: :listing-caption: Listing
+:source-highlighter: rouge
+:toc:
+// Uncomment next line to add a title page (or set doctype to book)
+//:title-page:
+// Uncomment next line to set page size (default is A4)
+//:pdf-page-size: Letter
+
+// An example of a basic http://asciidoc.org[AsciiDoc] document prepared by {author}.
+
+== Criando Sequências
+
+[source,js]
+----
+var source = Rx.Observable.range(1,10);
+var subscription = source.subscribe(
+    value => console.log(`My Value is ${value}`)
+)
+----
+
+A função “range()” recebe dois parâmetros:
+
+[range]
+* número inicial;
+* quantidade de números.
+
+Teremos o mesmo resultado se tivéssemos executado o “next” com valores de 1 a 10.
+
+Após o último elemento, a função “complete()” é executada.
